@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 d['user_name'] = tweet['user']['name']
                 d['time'] = tweet['created_at']
                 d['location'] = tweet['user']['location']
-                d['text'] = tweet['text']
+                d['text'] = bytes(tweet['text'], 'utf-8').decode('utf-8', 'ignore')
                 data.append(d)
 
         df = pd.DataFrame(data, columns=data[0].keys())
