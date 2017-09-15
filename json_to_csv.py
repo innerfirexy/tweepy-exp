@@ -27,8 +27,15 @@ if __name__ == '__main__':
                 d['user_name'] = tweet['user']['name']
                 d['time'] = tweet['created_at']
                 d['location'] = tweet['user']['location']
-                d['text'] = bytes(tweet['text'], 'utf-8').decode('utf-8', 'ignore')
+
+                try:
+                    # d['text'] = bytes(tweet['text'], 'utf-8').decode('utf-8', 'ignore')
+                    d['text'] = tweet['text']
+                except UnicodeEncodeError as e:
+                    print(tweet['text'])
+                    raise
+
                 data.append(d)
 
         df = pd.DataFrame(data, columns=data[0].keys())
-        df.to_csv(output_file, index=False, sep='\t')
+        df.to_csv(output_file, index=False, sep='\t', encoding='utf-8')
