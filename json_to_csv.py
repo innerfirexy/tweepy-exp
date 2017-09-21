@@ -22,13 +22,17 @@ if __name__ == '__main__':
                     continue
                 tweet = json.loads(line)
 
+                # skip over non-English tweets
+                if tweet['lang'] != 'en':
+                    continue
+
                 d = {}
                 d['user_id'] = tweet['user']['id']
                 d['user_name'] = tweet['user']['name']
                 d['time'] = tweet['created_at']
                 d['location'] = tweet['user']['location']
-                d['text'] = bytes(tweet['text'], 'utf-8').decode('utf-8', 'ignore')
+                d['text'] = bytes(tweet['text'], 'utf-8').decode('utf-8', 'ignore').replace('\n', ' ').replace('\t', ' ')
                 data.append(d)
 
         df = pd.DataFrame(data, columns=data[0].keys())
-        df.to_csv(output_file, index=False, sep='\t')
+        df.to_csv(output_file, index=False, sep='\t', encoding='utf-8')
