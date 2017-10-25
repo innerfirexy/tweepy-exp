@@ -18,30 +18,41 @@ import pandas as pd
 
 # Define the listener
 class MyListener(StreamListener):
-    def __init__(self, max_num=300, output_file='my_tweets.json'):
+    def __init__(self, raw_file, csv_file, text_file, max_num=300):
         super().__init__()
+        self.raw_file = raw_file
+        self.csv_file = csv_file
+        self.text_file = text_file
         self.max_num = max_num
-        self.output_file = output_file
         self.count = 0
         self.start_time = time.time()
 
     def on_data(self, data):
+        # Filter out special cases
         if data.startswith('{"limit":'):
             return
+
+        # Filter out non-English tweets
         # tweet = json.loads(data)
         # if 'retweeted_status' in tweet:
         #     return
 
-        with open(self.output_file, 'a') as f:
-            f.write(data)
+        with open(self.raw_file, 'a') as f_raw, open(self.csv_file, 'a') as f_csv, open(self.text_file, 'a') as f_text:
+            # Write to raw_file
+            f_raw.write(data)
+
+            # Extract fields from data and write to csv_file
+            tweet = json.loads(data)
+
+
             # Increment count
             self.count += 1
             # if self.count % 10 == 0 and self.count > 0:
-            print('{}/{} tweets downloaded'.format(self.count, self.max_num))
+            print('\r{}/{} tweets downloaded'.format(self.count, self.max_num))
 
             # Check if reaches the maximum tweets number limit
             if self.count == self.max_num:
-                print('Maximum number reached, aborting.')
+                print('Maximum number reached.')
                 end_time = time.time()
                 elapse = end_time - self.start_time
                 print('It took {} seconds to download {} tweets'.format(elapse, self.max_num))
@@ -204,8 +215,8 @@ def main():
     csv_file = 'data_{}.csv'.format(postfix)
     text_file = 'text_{}.csv'.format(postfix)
 
-    twitter_stream = Stream(auth, MyListener(output_file=output_file))
-    twitter_stream.filter(track=keywords)
+    twitter_stream = Stream(auth, MyListener(raw_file=raw_file, csv_file=csv_file, text_file=text_file))
+    twitter_stream.filter(track=key_words)
 
 
 if __name__ == '__main__':
