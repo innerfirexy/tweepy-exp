@@ -125,8 +125,9 @@ def main():
 
     # Prompt for input keywords
     methods = ['manual', 'file']
+    print('How do you want to specify your key words?')
     while True:
-        m = input('How do you want to specify your key words?\nType "manual" or "file" >>> ')
+        m = input('Type "manual" or "file" >>> ')
         if m in methods:
             break
         else:
