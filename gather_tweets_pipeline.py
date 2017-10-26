@@ -251,7 +251,7 @@ def main():
     csv_file = 'data_{}.csv'.format(postfix)
     text_file = 'text_{}.csv'.format(postfix)
 
-    twitter_stream = Stream(auth, MyListener(raw_file=raw_file, csv_file=csv_file, text_file=text_file))
+    twitter_stream = Stream(auth, MyListener(raw_file=raw_file, csv_file=csv_file, text_file=text_file, max_num=num_tweets))
     twitter_stream.filter(track=key_words)
 
 
