@@ -33,26 +33,62 @@ class MyListener(StreamListener):
             return
 
         # Filter out non-English tweets
-        # tweet = json.loads(data)
+        tweet = json.loads(data)
+        if tweet['lang'] != 'en':
+            return
         # if 'retweeted_status' in tweet:
         #     return
 
+        # Extract fields from tweet and write to csv_file
+        user_id = tweet['user']['id']
+        user_name = tweet['user']['name']
+        tweet_time = tweet['created_at']
+        location = tweet['user']['location']
+        text = tweet['text'].strip().replace('\n', ' ').replace('\t', ' ')
+
+        # Remove non-ASCII characters and commas in user_name and location
+        if user_name is not None:
+            user_name = ''.join([c if ord(c) < 128 else '' for c in user_name])
+            user_name = user_name.replace(',', '')
+        if location is not None:
+            location = ''.join([c if ord(c) < 128 else '' for c in location])
+            location = location.replace(',', '')
+
+        # Remove non-ASCII characters in text
+        text = ''.join([c if ord(c) < 128 else '' for c in text])
+        # Replace commas with space
+        text = text.replace(',', ' ')
+        # Replace double quotes with blanks
+        text = re.sub(r'\"', '', text)
+        # Replace consecutive underscores with space
+        text = re.sub(r'[_]{2,}', ' ', text)
+        # Remove all consecutive whitespace characters
+        text = ' '.join(text.split())
+
+        # Check if csv_file, text_file exist
+        # If not, create them and write the heads
+        if not os.path.isfile(self.csv_file):
+            with open(self.csv_file, 'w') as f:
+                f.write(','.join(['user_id', 'user_name', 'tweet_time', 'location', 'text']) + '\n')
+        if not os.path.isfile(self.text_file):
+            with open(self.text_file, 'w') as f:
+                f.write('text\n')
+
         with open(self.raw_file, 'a') as f_raw, open(self.csv_file, 'a') as f_csv, open(self.text_file, 'a') as f_text:
-            # Write to raw_file
-            f_raw.write(data)
-
-            # Extract fields from data and write to csv_file
-            tweet = json.loads(data)
-
+            # Write to files
+            f_raw.write(data.strip() + '\n')
+            f_csv.write(','.join(map(str, [user_id, user_name, tweet_time, location, text])) + '\n')
+            f_text.write(text + '\n')
 
             # Increment count
             self.count += 1
             # if self.count % 10 == 0 and self.count > 0:
-            print('\r{}/{} tweets downloaded'.format(self.count, self.max_num))
+            sys.stdout.write('\r{}/{} tweets downloaded'.format(self.count, self.max_num))
+            sys.stdout.flush()
 
             # Check if reaches the maximum tweets number limit
             if self.count == self.max_num:
-                print('Maximum number reached.')
+                print('\nMaximum number reached.')
                 end_time = time.time()
                 elapse = end_time - self.start_time
                 print('It took {} seconds to download {} tweets'.format(elapse, self.max_num))
