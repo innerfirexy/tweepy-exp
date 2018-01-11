@@ -1,3 +1,7 @@
 *.csv
 *.json
 *.ipynb
+
+get_tweets_xy.py
+json_to_csv.py
+remove_nonASCII.py
