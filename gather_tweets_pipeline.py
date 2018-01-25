@@ -101,7 +101,8 @@ class MyListener(StreamListener):
 
 # Get the str representation of the current date and time
 def current_datetime_str():
-    return f'{datetime.datetime.now():%Y-%m-%d_%H-%M-%S}'
+    # return f'{datetime.datetime.now():%Y-%m-%d_%H-%M-%S}'
+    return datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
 
 # Main
